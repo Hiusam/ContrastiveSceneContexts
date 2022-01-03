@@ -27,49 +27,52 @@ torch.cuda.manual_seed(0)
 
 logging.basicConfig(level=logging.INFO, format="")
 
+
 def get_trainer(trainer):
-  if trainer == 'PointNCELossTrainer':
-    return PointNCELossTrainer
-  elif trainer == 'PartitionPointNCELossTrainer':
-    return PartitionPointNCELossTrainer
-  elif trainer == 'PartitionPointNCELossTrainerPointNet':
-    return PartitionPointNCELossTrainerPointNet
-  else:
-    raise ValueError(f'Trainer {trainer} not found')
+    if trainer == 'PointNCELossTrainer':
+        return PointNCELossTrainer
+    elif trainer == 'PartitionPointNCELossTrainer':
+        return PartitionPointNCELossTrainer
+    elif trainer == 'PartitionPointNCELossTrainerPointNet':
+        return PartitionPointNCELossTrainerPointNet
+    else:
+        raise ValueError(f'Trainer {trainer} not found')
 
-@hydra.main(config_path='config', config_name='defaults.yaml')
+
+@hydra.main(config_path='config', config_name='defaults')
 def main(config):
-  if os.path.exists('config.yaml'):
-    logging.info('===> Loading exsiting config file')
-    config = OmegaConf.load('config.yaml')
-    logging.info('===> Loaded exsiting config file')
-  logging.info('===> Configurations')
-  logging.info(config.pretty())
+    if os.path.exists("config"):
+        logging.info('===> Loading exsiting config fil'
+                     'e')
+        config = OmegaConf.load('defaults.yaml')
+        logging.info('===> Loaded exsiting config file')
+    logging.info('===> Configurations')
+    # logging.info(config.pretty())
 
-  # Convert to dict
-  if config.misc.num_gpus > 1:
-      mpu.multi_proc_run(config.misc.num_gpus,
-              fun=single_proc_run, fun_args=(config,))
-  else:
-      single_proc_run(config)
+    # Convert to dict
+    if config.misc.num_gpus > 1:
+        mpu.multi_proc_run(config.misc.num_gpus,
+                           fun=single_proc_run, fun_args=(config,))
+    else:
+        single_proc_run(config)
 
 def single_proc_run(config):
-  from lib.ddp_data_loaders import make_data_loader
+    from lib.ddp_data_loaders import make_data_loader
 
-  train_loader = make_data_loader(
-      config,
-      int(config.trainer.batch_size / config.misc.num_gpus),
-      num_threads=int(config.misc.train_num_thread / config.misc.num_gpus))
+    train_loader = make_data_loader(
+        config,
+        int(config.trainer.batch_size / config.misc.num_gpus),
+        num_threads=int(config.misc.train_num_thread / config.misc.num_gpus))
 
-  Trainer = get_trainer(config.trainer.trainer)
-  trainer = Trainer(config=config, data_loader=train_loader)
+    Trainer = get_trainer(config.trainer.trainer)
+    trainer = Trainer(config=config, data_loader=train_loader)
 
-  if config.misc.is_train:
-    trainer.train()
-  else:
-    trainer.test()
+    if config.misc.is_train:
+        trainer.train()
+    else:
+        trainer.test()
 
 
 if __name__ == "__main__":
-  os.environ['MKL_THREADING_LAYER'] = 'GNU'
-  main()
+    os.environ['MKL_THREADING_LAYER'] = 'GNU'
+    main()
