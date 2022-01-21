@@ -18,3 +18,6 @@ callgrind.out*
 
 # Misc
 .DS_Store
+
+# bfs
+lib/bfs/ops

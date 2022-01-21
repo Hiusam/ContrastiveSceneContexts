@@ -3,8 +3,8 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-export SCANNET_DIR=<path_to_downloaded_data>
-export TARGET=<path_to_target_data>   # data destination (change here)
+export SCANNET_DIR=/home/xurunsen/datasets/ScanNet
+export TARGET=/home/xurunsen/datasets/ScanNet/scans_processed   # data destination (change here)
 
 reader() {
     filename=$1
@@ -19,7 +19,6 @@ reader() {
     echo "Compute partial scan overlapping"
     python -u compute_full_overlapping.py --input_path $TARGET/$scene/pcd
 }
-
 export -f reader
 
-parallel -j 64 --linebuffer time reader ::: `find $SCANNET_DIR/scans/scene*/*.sens`
+parallel -j 32 --linebuffer time reader ::: `find $SCANNET_DIR/scans/scene00*/*.sens`

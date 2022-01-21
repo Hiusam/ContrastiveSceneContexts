@@ -39,7 +39,7 @@ def get_trainer(trainer):
         raise ValueError(f'Trainer {trainer} not found')
 
 
-@hydra.main(config_path='config', config_name='defaults')
+@hydra.main(config_path='config', config_name='debug')
 def main(config):
     if os.path.exists("config"):
         logging.info('===> Loading exsiting config fil'

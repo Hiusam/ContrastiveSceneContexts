@@ -25,7 +25,7 @@ RAW2SCANNET = g_raw2scannet
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input', default='/canis/Datasets/ScanNet/public/v2/scans/')
+    parser.add_argument('--input', default='/home/xurunsen/datasets/ScanNet/scans')
     parser.add_argument('--output', default='./output')
     opt = parser.parse_args()
     return opt
